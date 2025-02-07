@@ -1,6 +1,6 @@
 import pygame
 from enemy import Enemy
-from tower import BasicTower, SniperTower
+from tower import BasicTower, SniperTower, MoneyTower
 
 """содержит логику уровня, управление волнами врагов, их спавн, а также расстановку башен и обработку коллизий."""
 
@@ -42,7 +42,7 @@ class Level:
 
     def attempt_place_tower(self, mouse_pos, tower_type):
         """Пытается разместить башню выбранного типа в позиции курсора."""
-        tower_classes = {'basic': BasicTower, 'sniper': SniperTower}
+        tower_classes = {'basic': BasicTower, 'sniper': SniperTower, 'money': MoneyTower}
         if tower_type in tower_classes and self.game.settings.starting_money >= self.game.settings.tower_cost:
             grid_pos = self.game.grid.get_grid_position(mouse_pos)
             if self.game.grid.is_spot_available(grid_pos):

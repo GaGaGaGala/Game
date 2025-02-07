@@ -85,9 +85,9 @@ class BasicTower(Tower):
         self.image = pygame.image.load('assets/towers/basic_tower.png').convert_alpha()
         self.original_image = self.image
         self.rect = self.image.get_rect(center=self.position)
-        self.tower_range = 150
-        self.damage = 20
-        self.rate_of_fire = 1000
+        self.tower_range = 150 #диапазон
+        self.damage = 20 #повреждения
+        self.rate_of_fire = 1000 #скорострельность
 
     def shoot(self, target, bullets_group):
         new_bullet = Bullet(self.position, target.position, self.damage, self.game)
@@ -118,3 +118,30 @@ class SniperTower(Tower):
     def shoot(self, target, bullets_group):
         new_bullet = Bullet(self.position, target.position, self.damage, self.game)
         bullets_group.add(new_bullet)
+
+
+class MoneyTower(Tower):
+    """Класс денежной башни, генерирующей деньги для игрока с заданной скоростью."""
+    def __init__(self, position, game):
+        super().__init__(position, game)
+        self.image = pygame.image.load('assets/towers/money_tower.png').convert_alpha()
+        self.original_image = self.image
+        self.rect = self.image.get_rect(center=self.position)
+        #self.game.settings.starting_money = 500
+        #self.rate_of_fire = 3000
+        #self.tower_range = 500
+        #self.damage = 50
+        self.money_generation_rate = 50  # Количество генерируемых денег
+        self.generation_interval = 300  # Интервал генерации в миллисекундах
+        self.last_generation_time = pygame.time.get_ticks()
+
+    def update(self, enemies, current_time, bullets_group):
+        if current_time - self.last_generation_time > self.generation_interval:
+            self.generate_money()
+            self.last_generation_time = current_time
+
+    def generate_money(self):
+        """
+        Генерирует деньги для игрока, увеличивая его текущую сумму денег.
+        """
+        self.game.settings.starting_money += self.money_generation_rate

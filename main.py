@@ -3,8 +3,6 @@ import sys
 from settings import Settings
 from level import Level
 from grid import Grid
-from bullet import Bullet
-from enemy import Enemy
 
 """
 Главный модуль проекта, содержащий основной игровой цикл,  обработку событий, обновление состояний игры и отрисовку 
@@ -66,7 +64,7 @@ class TowerDefenseGame:
     def _check_events(self):
         """Обрабатывает игровые события, такие как нажатие клавиш и клики мыши."""
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:                               #нажатие на кнопку закрытия окна.
+            if event.type == pygame.QUIT:       #нажатие на кнопку закрытия окна.
                 pygame.quit()           #завершение работы
                 sys.exit()
             elif event.type == pygame.KEYDOWN: #Нажатие клавиши на клавиатуре.
@@ -79,6 +77,9 @@ class TowerDefenseGame:
                 elif event.key == pygame.K_2:                             #event.key - содержит код клавиши
                     self.selected_tower_type = 'sniper'
                     print("Selected sniper tower.")
+                elif event.key == pygame.K_3:                             #event.key - содержит код клавиши
+                    self.selected_tower_type = 'money'
+                    print("Selected money tower.")
 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: # MOUSEBUTTONDOWN -Нажатие кнопки мыши , event.button==1 - левая копка мыши.
                 if self.selected_tower_type:                                  # event.button - содержат информацию о кнопке мыши и положении курсора.
