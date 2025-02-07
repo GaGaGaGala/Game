@@ -127,12 +127,8 @@ class MoneyTower(Tower):
         self.image = pygame.image.load('assets/towers/money_tower.png').convert_alpha()
         self.original_image = self.image
         self.rect = self.image.get_rect(center=self.position)
-        #self.game.settings.starting_money = 500
-        #self.rate_of_fire = 3000
-        #self.tower_range = 500
-        #self.damage = 50
-        self.money_generation_rate = 50  # Количество генерируемых денег
-        self.generation_interval = 300  # Интервал генерации в миллисекундах
+        self.money_generation_rate = 10  # Количество генерируемых денег
+        self.generation_interval = 1000  # Интервал генерации в миллисекундах
         self.last_generation_time = pygame.time.get_ticks()
 
     def update(self, enemies, current_time, bullets_group):
