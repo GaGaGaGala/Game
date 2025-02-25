@@ -1,6 +1,7 @@
 """Модуль определяет класс врага, его движение по карте, здоровье и получение урона."""
 import pygame
 from pygame.math import Vector2
+import random
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -19,6 +20,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.center = self.position
         self.enemy_hit_sound = pygame.mixer.Sound('assets/sounds/enemy_hit.wav')
         self.enemy_hit_sound.play()
+
 
 
     def take_damage(self, amount):

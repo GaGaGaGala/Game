@@ -1,6 +1,7 @@
 import pygame
 from enemy import Enemy
 from tower import BasicTower, SniperTower, MoneyTower
+import random
 
 """содержит логику уровня, управление волнами врагов, их спавн, а также расстановку башен и обработку коллизий."""
 
@@ -13,10 +14,14 @@ class Level:
         self.enemies = pygame.sprite.Group()
         self.towers = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
+
+        """Добавлены пути врагов и их случайный выбор. """
+        self.random_path = [self.game.settings.enemy_path, self.game.settings.enemy_path2,
+                            self.game.settings.enemy_path3, self.game.settings.enemy_path4, self.game.settings.enemy_path5]
         self.waves = [
-            [{'path': self.game.settings.enemy_path, 'speed': 1, 'health': 100, 'image_path': 'assets/enemies/basic_enemy.png'}] * 5,
-            [{'path': self.game.settings.enemy_path, 'speed': 1.5, 'health': 150, 'image_path': 'assets/enemies/fast_enemy.png'}] * 7,
-            [{'path': self.game.settings.enemy_path, 'speed': 0.75, 'health': 200, 'image_path': 'assets/enemies/strong_enemy.png'}] * 4,
+            [{'path': random.choice(self.random_path), 'speed': 1, 'health': 100, 'image_path': 'assets/enemies/basic_enemy.png'}] * 5,
+            [{'path': random.choice(self.random_path), 'speed': 1.5, 'health': 150, 'image_path': 'assets/enemies/fast_enemy.png'}] * 7,
+            [{'path': random.choice(self.random_path), 'speed': 0.75, 'health': 200, 'image_path': 'assets/enemies/strong_enemy.png'}] * 4,
         ]
         self.current_wave = 0
         self.spawned_enemies = 0
@@ -61,6 +66,7 @@ class Level:
 
         if self.current_wave < len(self.waves) and self.spawned_enemies < len(self.waves[self.current_wave]):
             if current_time - self.last_spawn_time > self.spawn_delay:
+                self.waves[self.current_wave][self.spawned_enemies].update({"path": random.choice(self.random_path)})
                 enemy_info = self.waves[self.current_wave][self.spawned_enemies].copy()
                 enemy_info['game'] = self.game
                 new_enemy = Enemy(**enemy_info)
