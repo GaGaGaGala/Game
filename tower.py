@@ -1,10 +1,16 @@
 """
 Базовый класс башни и его наследники для разных типов башен, содержит логику стрельбы,
 поиска цели и улучшения.
+Каждая башня имеет следующие характеристики:
+- Позиция: координаты расположения на игровом поле.
+- Урон: величина урона, наносимого врагам.
+- Дальность: максимальное расстояние, на которое башня может атаковать.
+- Скорострельность: время между выстрелами.
 """
 import pygame
 from bullet import Bullet
 import math
+from settings import Settings
 
 
 class Tower(pygame.sprite.Sprite):
@@ -12,56 +18,93 @@ class Tower(pygame.sprite.Sprite):
 к цели и поиск цели."""
     def __init__(self, position, game):
         super().__init__()
+        self.settings = Settings()
         self.position = pygame.math.Vector2(position)
         self.game = game
 
+        # Характеристики башни
         self.image = None
         self.rect = None
-        self.tower_range = 0
-        self.damage = 0
-        self.rate_of_fire = 0
-        self.last_shot_time = pygame.time.get_ticks()
-        self.level = 1
+        self.tower_range = 0  # Радиус действия башни
+        self.damage = 0   # Урон
+        self.rate_of_fire = 0    # Скорострельность в миллисекундах (интервал между выстрелами)
+        self.last_shot_time = pygame.time.get_ticks()  # Время последнего выстрела
+        self.level = 1  # Уровень башни
+
         self.original_image = self.image
+        self.rotation_angle = 0
 
     def upgrade_cost(self):
         return 100 * self.level
 
+    def upgrade(self):
+        """
+        Улучшение уровня башни. Увеличивает урон и скорострельность на 20%.
+        """
+        # Проверяем, достаточно ли денег для улучшения
+        if self.game.settings.starting_money >= self.upgrade_cost():
+            # Списываем деньги
+            self.game.settings.starting_money -= self.upgrade_cost()
+
+            # Увеличиваем уровень башни
+            self.level += 1
+
+            # Увеличиваем характеристики башни
+            self.damage = int(self.damage * 1.2)  # Увеличиваем урон на 20%
+            self.rate_of_fire = int(self.rate_of_fire * 0.8)  # Увеличиваем скорострельность (уменьшение интервала)
+
+            print(f"Башня улучшена до уровня {self.level}. Новый урон: {self.damage}, "
+                  f"новая скорострельность: {self.rate_of_fire} мс.")
+        else:
+            print("Недостаточно денег для улучшения башни.")
+
+    def is_hovered(self, mouse_pos):
+        """
+        Проверяет, находится ли курсор мыши над башней.
+        :param mouse_pos: Позиция мыши.
+        :return: True, если курсор над башней, иначе False.
+        """
+        return self.rect.collidepoint(mouse_pos)
+
     def draw(self, screen):
+        screen.blit(self.image, self.rect.topleft)  #Отображение информации о башне на экране.
         mouse_pos = pygame.mouse.get_pos()
         if self.is_hovered(mouse_pos):
             level_text = self.game.font.render(f"Level: {self.level}", True, (255, 255, 255))
             upgrade_cost_text = self.game.font.render(f"Upgrade: ${self.upgrade_cost()  }", True, (255, 255, 255))
 
-            level_text_pos = (self.position.x, self.position.y + 20)
-            upgrade_cost_pos = (self.position.x, self.position.y + 40)
+            level_text_pos = (self.rect.centerx, self.rect.top - 20)
+            upgrade_cost_text_pos = (self.rect.centerx, self.rect.top - 40)
 
             screen.blit(level_text, level_text_pos)
-            screen.blit(upgrade_cost_text, upgrade_cost_pos)
+            screen.blit(upgrade_cost_text, upgrade_cost_text_pos)
 
     def update(self, enemies, current_time, bullets_group):
-        if current_time - self.last_shot_time > self.rate_of_fire:
-            target = self.find_target(enemies)
-            if target:
-                self.rotate_towards_target(target)
-                self.shoot(target, bullets_group)
-                self.last_shot_time = current_time
 
-    def is_hovered(self, mouse_pos):
-        return self.rect.collidepoint(mouse_pos)
+        # Ищем ближайшую цель
+        target = self.find_target(enemies)
+        if target:
+            self.rotate_towards(target.position)
+        # Проверяем, может ли башня стрелять
+            if current_time - self.last_shot_time >= self.rate_of_fire:
+                self.last_shot_time = current_time
+                self.shoot(target, bullets_group)
+                bullet = Bullet(self.position, target.position, self.damage, self.game)
+                bullets_group.add(bullet)
 
     def shoot(self, target, bullets_group):
-        pass
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_shot_time >= self.rate_of_fire:
+            self.last_shot_time = current_time
+            target.take_damage(self.damage)
 
-    def rotate_towards_target(self, target):
-        dx = target.position.x - self.position.x
-        dy = target.position.y - self.position.y
+    def rotate_towards(self, target_position):
+        dx = target_position.x - self.position.x
+        dy = target_position.y - self.position.y
         # Вычисляем угол в радианах
-        angle_rad = math.atan2(dy, dx)
+        self.rotation_angle = (180 / math.pi) * -math.atan2(dy, dx)
         # Преобразуем радианы в градусы
-        angle_deg = math.degrees(angle_rad)
-        angle_deg = -angle_deg - 90
-        self.image = pygame.transform.rotate(self.original_image, angle_deg)
+        self.image = pygame.transform.rotate(self.original_image, self.rotation_angle)
         self.rect = self.image.get_rect(center=self.position)
 
     def find_target(self, enemies):
@@ -73,9 +116,6 @@ class Tower(pygame.sprite.Sprite):
                 nearest_enemy = enemy
                 min_distance = distance
         return nearest_enemy
-
-    def upgrade(self):
-        self.level += 1
 
 
 class BasicTower(Tower):

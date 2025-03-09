@@ -13,10 +13,14 @@ class Settings:
         self.cols = 15
         self.grid_size = (64, 64)
 
-        self.tower_cost = 100
+        self.tower_costs = {
+            'basic': 100,
+            'sniper': 150,
+            'money': 200,
+        }
         self.tower_upgrade_cost = 150
         self.tower_sell_percentage = 0.75
-        self.enemy_path =  [
+        self.enemy_path1 =  [
             (50, 400), (300, 400), (300, 200), (600, 200),
             (600, 600),(900, 600), (900, 300), (1150, 300)
         ]
@@ -46,17 +50,22 @@ class Settings:
             'sniper': 'assets/towers/sniper_tower.png',
             'money': 'asserts/towers/money_tower.png',
         }
-        self.enemy_sprite = 'assets/enemies/basic_enemy.png'
+        self.enemy_sprites = {
+            'base': 'assets/enemies/basic_enemy.png',
+            'fast': 'assets/enemies/fast_enemy.png',
+            'strong': 'assets/enemies/strong_enemy.png',
+            'boss': 'assets/enemies/boss_enemy.png',
+        }
         self.bullet_sprite = 'assets/bullets/basic_bullet.png'
-        self.background_image = 'assets/backgrounds/game_background.png'
+        self.background_image = 'assets/backgrounds/bg.jpg'#game_background.png'
 
         self.shoot_sound = 'assets/sounds/shoot.wav'
         self.upgrade_sound = 'assets/sounds/upgrade.wav'
         self.sell_sound = 'assets/sounds/sell.wav'
         self.enemy_hit_sound = 'assets/sounds/enemy_hit.wav'
         self.background_music = 'assets/sounds/background_music.mp3'
-
-        self.starting_money = 500
+        self.spawn_sound = 'assets/sounds/spawn.wav'
+        self.starting_money = 3000
         self.lives = 20
 
         self.tower_positions = [(x * self.grid_size[0] + self.grid_size[0] // 2, y * self.grid_size[1] + self.grid_size[1] // 2)
